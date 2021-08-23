@@ -1,16 +1,13 @@
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
 import tabula
 import PyPDF2
 import re
-import csv
 from os import listdir
 from os.path import isfile, join
 from datetime import datetime
 import math
 import pandas
 
-path_to_report_directory = "/Users/andrew/projects/covid-19-pediatric/practice-report-full/"
+path_to_report_directory = "/Users/andrew/projects/covid-19-pediatric/pediatric-state-reports/"
 path_to_output_directory = "/Users/andrew/projects/covid-19-pediatric/scraped_data/"
 
 
