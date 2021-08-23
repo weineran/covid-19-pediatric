@@ -16,9 +16,9 @@ def combine_csvs(input_csvs, output_filename):
 
     combined_df = pandas.concat(dataframes)
 
-    output_file_path = join(path_to_output_directory,output_filename)
+    output_file_path = join(path_to_output_directory, output_filename)
     with open(output_file_path, 'w', newline='') as csvfile:
-        combined_df.to_csv(path_or_buf=csvfile, index=False)
+        combined_df.to_csv(path_or_buf=csvfile, sep="|", index=False)
 
 
 if __name__ == '__main__':
