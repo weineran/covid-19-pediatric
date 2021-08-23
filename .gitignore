@@ -133,3 +133,6 @@ dmypy.json
 
 # macos
 .DS_Store
+
+# output
+scraped_data/
