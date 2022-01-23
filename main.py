@@ -7,7 +7,7 @@ from datetime import datetime
 import math
 import pandas
 
-path_to_report_directory = "/Users/andrew/projects/covid-19-pediatric/pediatric-state-reports-2/"
+path_to_report_directory = "/Users/andrew/projects/covid-19-pediatric/pediatric-state-reports-to-process/"
 path_to_output_directory = "/Users/andrew/projects/covid-19-pediatric/scraped_data/"
 
 
