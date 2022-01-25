@@ -9,3 +9,14 @@ Try for example:
 ```
 wget https://downloads.aap.org/AAP/PDF/AAP%20and%20CHA%20-%20Children%20and%20COVID-19%20State%20Data%20Report%2012.9%20FINAL.pdf
 ```
+
+NOTE: The weekly reports containing the source data is also saved in this repo for convenience (and redundancy).
+But some users may prefer to obtain the reports directly from the AAP.
+
+## How to use
+### Scrape data from reports
+`./venv/bin/python main.py pediatric-state-reports-to-process/ scraped_data/`
+
+### Combine weekly CSVs into aggregate CSVs
+`./venv/bin/python combine-csvs.py scraped_data/ combined_data/`
+
