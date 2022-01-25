@@ -7,11 +7,19 @@ from datetime import datetime
 import math
 import pandas
 import sys
+import time
+import shutil
 
-# path_to_report_directory = "/Users/andrew/projects/covid-19-pediatric/pediatric-state-reports-to-process/"
 path_to_report_directory = sys.argv[1]
-# path_to_output_directory = "/Users/andrew/projects/covid-19-pediatric/scraped_data/"
 path_to_output_directory = sys.argv[2]
+path_to_processed_report_directory = sys.argv[3]
+
+list_of_reports_with_no_case_data = []
+
+list_of_reports_with_no_hospitalization_data = [
+    "AAP and CHA - Children and COVID-19 State Data Report 11.26.20 FINAL.pdf",
+    "AAP and CHA - Children and COVID-19 State Data Report 12.24.20 FINAL.pdf"
+]
 
 
 def save_tables_to_csv(tables, output_file_path, column_headers):
@@ -60,6 +68,30 @@ def save_tables_to_csv(tables, output_file_path, column_headers):
         print(combined_table.to_csv(path_or_buf=csvfile, index=False))
 
 
+def make_some_beeps():
+    print('\a')
+    time.sleep(0.2)
+    print('\a')
+    time.sleep(0.2)
+    print('\a')
+    time.sleep(0.1)
+    print('\a')
+    time.sleep(0.2)
+    print('\a')
+    time.sleep(0.4)
+    print('\a')
+    time.sleep(0.2)
+    print('\a')
+
+
+def do_post_processing(filename):
+    print(f'Done processing file [{filename}]')
+    source = join(path_to_report_directory, filename)
+    dest = join(path_to_processed_report_directory, filename)
+    print(f'Moving file to [{dest}]')
+    shutil.move(source, dest)
+
+
 if __name__ == '__main__':
     if not isdir(path_to_report_directory):
         print(f'ERROR: [{path_to_report_directory}] is not a valid directory')
@@ -67,6 +99,10 @@ if __name__ == '__main__':
 
     if not isdir(path_to_output_directory):
         print(f'ERROR: [{path_to_output_directory}] is not a valid directory')
+        exit(1)
+
+    if not isdir(path_to_processed_report_directory):
+        print(f'ERROR: [{path_to_processed_report_directory}] is not a valid directory')
         exit(1)
 
     print(f'Processing files from report directory [{path_to_report_directory}]')
@@ -91,6 +127,7 @@ if __name__ == '__main__':
         # extracting text from page
         page1_text = pageObj.extractText()
 
+        # Get date of report from front page
         regex = "Version\n{0,1}: ([0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4})"
         regex_match = re.search(regex, page1_text)
 
@@ -102,11 +139,13 @@ if __name__ == '__main__':
         date = datetime.strptime(date_string, '%m/%d/%y')
         print(date)
 
+        # Extract all tables from report
         tables = tabula.read_pdf(file, pages="all", multiple_tables=True)
 
         hospitalization_tables = []
         case_tables = []
 
+        # Loop through tables to find Case data and Hospitalization data
         for table in tables:
             row_0 = table.loc[[0]].values.tolist()[0]
 
@@ -139,6 +178,7 @@ if __name__ == '__main__':
                 print(f'* "Location" in table.columns: {"Location" in table.columns}')
                 print(f'* "Location" in row_0: {"Location" in row_0}')
 
+        # Save case tables to CSV
         output_filename = f"cases-by-state-{date.strftime('%Y-%m-%d')}.csv"
         output_file_path = join(path_to_output_directory, output_filename)
         column_headers = ["Location", "Age range", "Child population, 2019",
@@ -147,14 +187,35 @@ if __name__ == '__main__':
                           "Cases per 100,000 children"]
 
         if len(case_tables) == 0:
-            print(f'ERROR: No case tables found')
-            exit(1)
+            if filename in list_of_reports_with_no_case_data:
+                print(f'Skipping creation of case CSV for [{filename}] because this report does not contain case data.')
+            else:
+                print(f'ERROR: No case tables found in report [{filename}]')
+                make_some_beeps()
+                exit(1)
+        else:
+            print(f'Saving [{len(case_tables)}] case tables to CSVs.')
+            save_tables_to_csv(case_tables, output_file_path, column_headers)
 
-        save_tables_to_csv(case_tables, output_file_path, column_headers)
-
+        # Save hospitalization tables to CSV
         output_filename = f"hospitalizations-by-state-{date.strftime('%Y-%m-%d')}.csv"
         output_file_path = join(path_to_output_directory, output_filename)
         column_headers = ["Location", "Age range", "Cumulative child hospitalizations",
                           "Cumulative total hospitalizations (all ages)",
                           "Percent children of total hospitalizations", "Hospitalization rate"]
-        save_tables_to_csv(hospitalization_tables, output_file_path, column_headers)
+
+        if len(hospitalization_tables) == 0:
+            if filename in list_of_reports_with_no_hospitalization_data:
+                print(f'Skipping creation of hospitalization CSV for [{filename}] '
+                      f'because this report does not contain hospitalization data.')
+            else:
+                print(f'ERROR: No hospitalization tables found in report [{filename}]')
+                make_some_beeps()
+                exit(1)
+        else:
+            print(f'Saving [{len(hospitalization_tables)}] hospitalization tables to CSVs.')
+            save_tables_to_csv(hospitalization_tables, output_file_path, column_headers)
+
+        do_post_processing(filename)
+
+    print(f'Done processing files from report directory [{path_to_report_directory}]')
