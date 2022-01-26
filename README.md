@@ -18,11 +18,13 @@ But some users may prefer to obtain the reports directly from the AAP.
 `./venv/bin/python main.py <path-to-reports-to-process> <output-dir> <path-to-move-reports-after-processing>`
 
 Example:
+
 `./venv/bin/python main.py pediatric-state-reports-to-process/ scraped_data/ pediatric-state-reports/`
 
 ### Combine weekly CSVs into aggregate CSVs
 `./venv/bin/python combine-csvs.py <path-to-input-csvs> <output-dir>`
 
 Example:
+
 `./venv/bin/pytho combine-csvs.py scraped_data/ combined_data/`
 
